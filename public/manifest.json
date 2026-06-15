@@ -3,7 +3,7 @@
   "short_name": "Solde",
   "display": "standalone",
   "background_color": "#FAFAFA",
-  "theme_color": "#2A3950",
+  "theme_color": "#5A5F85",
   "start_url": "/",
   "icons": [
     {

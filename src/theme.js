@@ -1,14 +1,14 @@
 // Thèmes de l'app. Objet extensible : un seul thème pour l'instant.
 export const THEMES = {
   'bleu-vert': {
-    name: 'Bleu & Vert',
-    primary: '#2A3950', // bleu nuit : chiffres, texte fort, FAB glyph
-    secondary: '#4F9E78', // vert moyen : accents, grammaire fine
-    secondaryDeep: '#2E7D5B', // vert soutenu : le € du grand chiffre, l'œil, les ✓
-    light: '#CFE6D7',
-    surface: '#FAFAFA', // fond blanc net
+    name: 'Indigo & vert d\'eau',
+    primary: '#5A5F85', // indigo poudré, pointe de violet doux
+    secondary: '#A8D4C6', // vert d'eau pâle
+    secondaryDeep: '#6DAFA0', // vert d'eau soutenu pour le €
+    light: '#E3EDE8',
+    surface: '#FAFAFA', // blanc net inchangé
     fabCream: '#FFFFFF', // FAB
-    muted: '#888273', // gris infos secondaires
+    muted: '#9A9489', // gris infos secondaires
     rule: '#E7E7E2', // trait fin principal
     ruleSoft: '#F1F1ED', // trait fin léger (entre postes)
     inputLine: '#DCDCD6',
