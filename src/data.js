@@ -131,6 +131,38 @@ export function categorieLabel(cat) {
   return CATEGORIE_LABELS[cat] || cat;
 }
 
+// Catégories sélectionnables dans le formulaire (ordre d'affichage).
+export const CATEGORIES = ['Hebergement', 'Transport', 'Activite', 'Autre'];
+
+// ── Statuts ──────────────────────────────────────────────────────────────
+// Ordre du cycle au tap : À réserver → Réservé → Payé → (reboucle).
+export const STATUTS = ['areserver', 'reserve', 'paye'];
+
+export const STATUT_LABELS = {
+  areserver: 'À réserver',
+  reserve: 'Réservé',
+  paye: 'Payé',
+};
+
+export function nextStatut(statut) {
+  const i = STATUTS.indexOf(statut);
+  return STATUTS[(i + 1) % STATUTS.length];
+}
+
+// ── Utilitaires CRUD ──────────────────────────────────────────────────────
+// Date du jour au format 'YYYY-MM-DD' (heure locale).
+export function todayISO() {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+// Identifiant unique pour un nouveau poste.
+export function newPosteId() {
+  return `po-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 // ── Logique de calcul ────────────────────────────────────────────────────
 // Renvoie { paid, reste, prochaine, restants, hasEch, aChiffrer }
 export function analyzePoste(p) {
