@@ -332,27 +332,33 @@ button {
 }
 
 .sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
   width: 100%;
-  max-width: var(--content-max);
-  max-height: 90vh;
-  overflow-y: auto;
+  max-width: 440px;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: var(--surface);
-  border-radius: 18px 18px 0 0;
-  padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
-  transform: translateY(100%);
+  border-radius: 22px 22px 0 0;
+  transform: translate(-50%, 100%);
   transition: transform 250ms ease;
   box-shadow: 0 -8px 30px rgba(42, 57, 80, 0.16);
 }
 
 .sheet.is-open {
-  transform: translateY(0);
+  transform: translate(-50%, 0);
 }
 
 .sheet__head {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--rule-soft);
 }
 
 .sheet__title {
@@ -373,8 +379,25 @@ button {
 }
 
 .sheet__form {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.sheet__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 20px 16px;
+}
+
+.sheet__foot {
+  flex: 0 0 auto;
+  padding: 16px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--rule-soft);
+  background: var(--surface);
 }
 
 /* ── Champs de formulaire ────────────────────────────────────────────── */
@@ -436,6 +459,151 @@ button {
   margin-bottom: 2px;
 }
 
+.inline-link {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--secondary-deep);
+}
+
+.inline-link--secondary {
+  color: var(--secondary);
+}
+
+.inline-link--muted {
+  color: var(--muted);
+}
+
+.inline-link--optional {
+  margin: 0;
+  padding: 12px 0;
+  text-align: left;
+}
+
+.derived-status {
+  font-size: 15px;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* ── Échéances ───────────────────────────────────────────────────────── */
+.field--echeances {
+  padding-bottom: 14px;
+}
+
+.echeances-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+.echeances-head .field__label {
+  margin-bottom: 0;
+}
+
+.echeances-head__chevron {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  transform: rotate(90deg);
+  transition: transform 180ms ease;
+}
+
+.echeances-head__chevron.is-open {
+  transform: rotate(-90deg);
+}
+
+.echeances-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.echeances-summary__label,
+.echeances-summary strong {
+  display: block;
+}
+
+.echeances-summary__label {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.echeances-summary strong {
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.echeances-summary__total {
+  color: var(--muted);
+}
+
+.echeances-summary__paid {
+  color: var(--secondary-deep);
+}
+
+.echeances-summary__reste {
+  color: var(--primary);
+}
+
+.echeances-detail {
+  margin-top: 14px;
+}
+
+.echeance-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.echeance-row__check {
+  margin-top: 7px;
+}
+
+.echeance-row__fields {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.echeance-row__amount {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  color: var(--muted);
+}
+
+.echeance-row__input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.echeance-row__date {
+  margin-top: 8px;
+}
+
+.echeance-row__delete {
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  padding: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1;
+}
+
 /* Choix en grammaire fine (statut, catégorie). */
 .choice {
   display: flex;
@@ -466,7 +634,6 @@ button {
 
 /* ── Boutons du sheet ────────────────────────────────────────────────── */
 .btn-primary {
-  margin-top: 20px;
   width: 100%;
   border: none;
   border-radius: 12px;
@@ -484,7 +651,7 @@ button {
 
 .btn-delete {
   margin-top: 14px;
-  align-self: center;
+  width: 100%;
   background: none;
   border: none;
   padding: 8px;

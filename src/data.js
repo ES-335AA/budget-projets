@@ -164,9 +164,10 @@ export function newPosteId() {
 }
 
 // ── Logique de calcul ────────────────────────────────────────────────────
-// Renvoie { paid, reste, prochaine, restants, hasEch, aChiffrer }
+// Renvoie { total, paid, reste, prochaine, restants, hasEch, aChiffrer }
 export function analyzePoste(p) {
   const res = {
+    total: 0,
     paid: 0,
     reste: 0,
     prochaine: null,
@@ -177,10 +178,11 @@ export function analyzePoste(p) {
 
   if (Array.isArray(p.echeances) && p.echeances.length > 0) {
     res.hasEch = true;
+    res.total = p.echeances.reduce((s, e) => s + (Number(e.montant) || 0), 0);
     res.paid = p.echeances
       .filter((e) => e.paye)
-      .reduce((s, e) => s + (e.montant || 0), 0);
-    res.reste = (p.prix || 0) - res.paid;
+      .reduce((s, e) => s + (Number(e.montant) || 0), 0);
+    res.reste = res.total - res.paid;
     // prochaine échéance non payée, date la plus proche, sans-date en dernier
     const unpaid = p.echeances.filter((e) => !e.paye);
     unpaid.sort((a, b) => {
@@ -201,6 +203,7 @@ export function analyzePoste(p) {
     return res;
   }
 
+  res.total = p.prix;
   res.paid = p.statut === 'paye' ? p.prix : 0;
   res.reste = p.prix - res.paid;
   return res;
@@ -219,17 +222,19 @@ export function computeTotals(postes) {
 
   for (const p of postes) {
     const a = analyzePoste(p);
-    if (p.prix !== null) total += p.prix;
+    if (p.prix !== null || a.hasEch) total += a.total;
     paye += a.paid;
     reste += a.reste;
 
     if (p.prix === null) nAChiffrer += 1;
 
-    if (p.statut === 'paye') nPaye += 1;
-    else if (p.statut === 'reserve') {
+    const statut = a.hasEch && a.restants === 0 ? 'paye' : a.hasEch ? 'reserve' : p.statut;
+
+    if (statut === 'paye') nPaye += 1;
+    else if (statut === 'reserve') {
       nReserve += 1;
       resteReserve += a.reste;
-    } else if (p.statut === 'areserver') {
+    } else if (statut === 'areserver') {
       nAreserver += 1;
       resteAreserver += a.reste;
     }
