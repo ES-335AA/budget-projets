@@ -229,6 +229,26 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
   }, []);
 
   useEffect(() => {
+    const scrollY = window.scrollY;
+    const { style } = document.body;
+
+    style.position = 'fixed';
+    style.top = `-${scrollY}px`;
+    style.left = '0';
+    style.right = '0';
+    style.width = '100%';
+
+    return () => {
+      style.position = '';
+      style.top = '';
+      style.left = '';
+      style.right = '';
+      style.width = '';
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
+
+  useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return undefined;
 
