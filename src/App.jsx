@@ -206,6 +206,7 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
   });
   const [echeancesOpen, setEcheancesOpen] = useState(true);
   const [shown, setShown] = useState(false);
+  const [sheetViewportStyle, setSheetViewportStyle] = useState(null);
   const notesRef = useRef(null);
   const lienRef = useRef(null);
   const echeanceAmountRefs = useRef({});
@@ -225,6 +226,40 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
   useEffect(() => {
     const id = requestAnimationFrame(() => setShown(true));
     return () => cancelAnimationFrame(id);
+  }, []);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return undefined;
+
+    let frame = 0;
+    const updateViewportStyle = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const keyboardOpen = vv.height + vv.offsetTop < window.innerHeight - 80;
+        if (!keyboardOpen) {
+          setSheetViewportStyle(null);
+          return;
+        }
+
+        setSheetViewportStyle({
+          top: `${vv.offsetTop}px`,
+          bottom: 'auto',
+          height: `${vv.height}px`,
+          maxHeight: `${vv.height}px`,
+        });
+      });
+    };
+
+    updateViewportStyle();
+    vv.addEventListener('resize', updateViewportStyle);
+    vv.addEventListener('scroll', updateViewportStyle);
+
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      vv.removeEventListener('resize', updateViewportStyle);
+      vv.removeEventListener('scroll', updateViewportStyle);
+    };
   }, []);
 
   useEffect(() => {
@@ -346,6 +381,7 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
     <div className={`sheet-overlay${shown ? ' is-open' : ''}`} onClick={close}>
       <div
         className={`sheet${shown ? ' is-open' : ''}`}
+        style={sheetViewportStyle ?? undefined}
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
