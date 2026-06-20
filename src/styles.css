@@ -319,12 +319,12 @@ button {
 .sheet-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(42, 57, 80, 0);
+  background: rgba(90, 95, 133, 0);
   display: flex;
   align-items: flex-end;
   justify-content: center;
   transition: background 250ms ease;
-  z-index: 10;
+  z-index: 100;
 }
 
 .sheet-overlay.is-open {
@@ -332,72 +332,82 @@ button {
 }
 
 .sheet {
-  position: fixed;
-  left: 50%;
-  bottom: 0;
   width: 100%;
   max-width: 440px;
-  max-height: 90dvh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  max-height: 92vh;
+  overflow-y: auto;
   background: var(--surface);
-  border-radius: 22px 22px 0 0;
-  transform: translate(-50%, 100%);
+  border-radius: 24px 24px 0 0;
+  transform: translate3d(0, 100%, 0);
   transition: transform 250ms ease;
   box-shadow: 0 -8px 30px rgba(42, 57, 80, 0.16);
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .sheet.is-open {
-  transform: translate(-50%, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .sheet__head {
-  flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 20px 14px;
-  border-bottom: 1px solid var(--rule-soft);
+  padding: 18px 22px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid #ece6d8;
 }
 
 .sheet__title {
+  flex: 1 1 auto;
   margin: 0;
   font-size: 18px;
   font-weight: 600;
   color: var(--primary);
+  text-align: center;
 }
 
 .sheet__close {
+  flex: 0 0 44px;
   background: none;
   border: none;
   padding: 4px;
-  margin: -4px -4px 0 0;
+  margin: -4px 0 0 -4px;
   font-size: 18px;
   line-height: 1;
   color: var(--muted);
+  text-align: left;
 }
 
-.sheet__form {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
+.sheet__ok {
+  flex: 0 0 44px;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  margin: -4px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--secondary-deep);
+  text-align: right;
+}
+
+.sheet__ok:disabled {
+  opacity: 0.4;
 }
 
 .sheet__body {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 8px 20px 16px;
+  padding: 20px 22px 32px;
 }
 
-.sheet__foot {
-  flex: 0 0 auto;
-  padding: 16px 20px calc(20px + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid var(--rule-soft);
-  background: var(--surface);
+.sheet .field {
+  border-bottom-color: #ece6d8;
+}
+
+.sheet .input {
+  border-bottom-color: #ddd6c5;
 }
 
 /* ── Champs de formulaire ────────────────────────────────────────────── */

@@ -206,11 +206,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
   });
   const [echeancesOpen, setEcheancesOpen] = useState(true);
   const [shown, setShown] = useState(false);
-  const [sheetViewportStyle, setSheetViewportStyle] = useState(null);
-  const notesRef = useRef(null);
-  const lienRef = useRef(null);
-  const echeanceAmountRefs = useRef({});
-  const focusEcheanceId = useRef(null);
   const hasEcheances = Array.isArray(echeances) && echeances.length > 0;
   const normalizedEcheances = useMemo(
     () => normalizeEcheances(echeances),
@@ -228,83 +223,10 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
     return () => cancelAnimationFrame(id);
   }, []);
 
-  useEffect(() => {
-    const scrollY = window.scrollY;
-    const { style } = document.body;
-
-    style.position = 'fixed';
-    style.top = `-${scrollY}px`;
-    style.left = '0';
-    style.right = '0';
-    style.width = '100%';
-
-    return () => {
-      style.position = '';
-      style.top = '';
-      style.left = '';
-      style.right = '';
-      style.width = '';
-      window.scrollTo(0, scrollY);
-    };
-  }, []);
-
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return undefined;
-
-    let frame = 0;
-    const updateViewportStyle = () => {
-      if (frame) cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const keyboardOpen = vv.height + vv.offsetTop < window.innerHeight - 80;
-        if (!keyboardOpen) {
-          setSheetViewportStyle(null);
-          return;
-        }
-
-        setSheetViewportStyle({
-          top: `${vv.offsetTop}px`,
-          bottom: 'auto',
-          height: `${vv.height}px`,
-          maxHeight: `${vv.height}px`,
-        });
-      });
-    };
-
-    updateViewportStyle();
-    vv.addEventListener('resize', updateViewportStyle);
-    vv.addEventListener('scroll', updateViewportStyle);
-
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      vv.removeEventListener('resize', updateViewportStyle);
-      vv.removeEventListener('scroll', updateViewportStyle);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!focusEcheanceId.current) return;
-    const el = echeanceAmountRefs.current[focusEcheanceId.current];
-    if (el) {
-      setTimeout(() => {
-        el.focus();
-        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        focusEcheanceId.current = null;
-      }, 0);
-    }
-  }, [echeances]);
-
   // Glissement de sortie puis démontage.
   function close() {
     setShown(false);
     setTimeout(onClose, 250);
-  }
-
-  function centerFocusedField(e) {
-    const el = e.currentTarget;
-    setTimeout(() => {
-      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    }, 250);
   }
 
   function buildPayload(echeancesValue = echeances, prixValue = prix) {
@@ -377,7 +299,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
 
   function addEcheance() {
     const id = newEcheanceId();
-    focusEcheanceId.current = id;
     const next = [
       ...(echeances || []),
       { id, montant: '', date: null, paye: false },
@@ -389,32 +310,33 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
 
   function revealNotes() {
     setShowNotes(true);
-    setTimeout(() => notesRef.current?.focus(), 0);
   }
 
   function revealLien() {
     setShowLien(true);
-    setTimeout(() => lienRef.current?.focus(), 0);
   }
 
   return (
     <div className={`sheet-overlay${shown ? ' is-open' : ''}`} onClick={close}>
-      <div
+      <form
         className={`sheet${shown ? ' is-open' : ''}`}
-        style={sheetViewportStyle ?? undefined}
+        onSubmit={submit}
+        autoComplete="off"
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sheet__head">
-          <h2 className="sheet__title">{isEdit ? 'Modifier le poste' : 'Nouveau poste'}</h2>
           <button type="button" className="sheet__close" aria-label="Fermer" onClick={close}>
             ✕
           </button>
+          <h2 className="sheet__title">{isEdit ? 'Modifier' : 'Nouveau poste'}</h2>
+          <button type="submit" className="sheet__ok" disabled={!titre.trim()}>
+            OK
+          </button>
         </div>
 
-        <form className="sheet__form" onSubmit={submit} autoComplete="off">
-          <div className="sheet__body">
+        <div className="sheet__body">
             <div className="field">
               <label className="field__label" htmlFor="f-titre">Titre</label>
               <input
@@ -424,12 +346,10 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
                 type="text"
                 value={titre}
                 onChange={(e) => setTitre(e.target.value)}
-                onFocus={centerFocusedField}
                 placeholder="Ex. Hôtel Hanoï"
                 autoComplete="off"
                 autoCapitalize="sentences"
                 autoCorrect="off"
-                autoFocus
               />
             </div>
 
@@ -445,7 +365,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
                   step="0.01"
                   value={prix}
                   onChange={(e) => setPrix(e.target.value)}
-                  onFocus={centerFocusedField}
                   placeholder="à chiffrer"
                   autoComplete="off"
                 />
@@ -496,10 +415,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
                         <div className="echeance-row__fields">
                           <label className="echeance-row__amount">
                             <input
-                              ref={(el) => {
-                                if (el) echeanceAmountRefs.current[e.id] = el;
-                                else delete echeanceAmountRefs.current[e.id];
-                              }}
                               name={`bp-e-a-${e.id}`}
                               className="input echeance-row__input"
                               type="number"
@@ -507,7 +422,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
                               step="0.01"
                               value={e.montant}
                               onChange={(ev) => updateEcheance(e.id, { montant: ev.target.value })}
-                              onFocus={centerFocusedField}
                               autoComplete="off"
                             />
                             <span>€</span>
@@ -519,7 +433,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
                             inputMode="numeric"
                             value={e.date ?? ''}
                             onChange={(ev) => updateEcheance(e.id, { date: ev.target.value || null })}
-                            onFocus={centerFocusedField}
                             autoComplete="off"
                           />
                         </div>
@@ -571,7 +484,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
                     inputMode="numeric"
                     value={du}
                     onChange={(e) => setDu(e.target.value)}
-                    onFocus={centerFocusedField}
                     autoComplete="off"
                   />
                 </div>
@@ -584,7 +496,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
                     inputMode="numeric"
                     value={au}
                     onChange={(e) => setAu(e.target.value)}
-                    onFocus={centerFocusedField}
                     autoComplete="off"
                   />
                 </div>
@@ -595,14 +506,12 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
               <div className="field">
                 <label className="field__label" htmlFor="f-notes">Notes · optionnel</label>
                 <textarea
-                  ref={notesRef}
                   id="f-notes"
                   name="bp-f-n"
                   className="input input--area"
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  onFocus={centerFocusedField}
                   placeholder="Remarques, références…"
                   autoComplete="off"
                   autoCorrect="off"
@@ -618,7 +527,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
               <div className="field">
                 <label className="field__label" htmlFor="f-lien">Lien · optionnel</label>
                 <input
-                  ref={lienRef}
                   id="f-lien"
                   name="bp-f-l"
                   className="input"
@@ -626,7 +534,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
                   inputMode="url"
                   value={lien}
                   onChange={(e) => setLien(e.target.value)}
-                  onFocus={centerFocusedField}
                   placeholder="https://…"
                   autoComplete="off"
                   autoCapitalize="none"
@@ -638,12 +545,6 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
                 ＋ Ajouter un lien
               </button>
             )}
-          </div>
-
-          <div className="sheet__foot">
-            <button type="submit" className="btn-primary" disabled={!titre.trim()}>
-              Enregistrer
-            </button>
 
             {isEdit && (
               <button
@@ -657,9 +558,8 @@ function PosteSheet({ poste, onClose, onSave, onDelete }) {
                 Supprimer ce poste
               </button>
             )}
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 }
